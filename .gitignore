@@ -1,0 +1,18 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+
+.DS_Store
+
+
+# Project data
+/02.input/pre-processed/
+/02.input/alabama/

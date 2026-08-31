@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Streamflow Drought Dashboard</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="app">
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">&#9662;</span>
+        <span class="brand-name">Streamflow Drought Dashboard</span>
+      </div>
+      <nav id="tab-bar" class="tab-bar" role="tablist"></nav>
+      <div class="topbar-meta">
+        <span id="data-source-badge" class="badge">local data</span>
+        <span id="generated-at" class="muted"></span>
+      </div>
+    </header>
+
+    <main id="tab-panels"></main>
+
+    <template id="tpl-map-tab">
+      <div class="tab-layout">
+
+        <aside class="sidebar">
+          <section class="control-group">
+            <h3>Region</h3>
+            <label class="field">
+              <span>State</span>
+              <select data-control="state"></select>
+            </label>
+          </section>
+
+          <section class="control-group">
+            <h3>Severity layer</h3>
+            <label class="field">
+              <span>Duration (water-years)</span>
+              <select data-control="duration"></select>
+            </label>
+            <label class="field">
+              <span>Metric</span>
+              <select data-control="metric"></select>
+            </label>
+            <p class="hint" data-role="metric-hint"></p>
+          </section>
+
+          <section class="control-group">
+            <h3>Station filters</h3>
+            <label class="field">
+              <span>GAGES-II status</span>
+              <select data-control="reference-status">
+                <option value="all">All stations</option>
+                <option value="reference">Reference only</option>
+                <option value="non-reference">Non-reference only</option>
+                <option value="unclassified">Not in GAGES-II</option>
+              </select>
+            </label>
+            <label class="field checkbox">
+              <input type="checkbox" data-control="analysis-only" checked />
+              <span>Only show stations with drought analysis</span>
+            </label>
+          </section>
+
+          <section class="control-group" id="legend">
+            <h3>Severity magnitude (%)</h3>
+            <div id="legend-swatches"></div>
+            <p class="hint">Percent below baseline mean flow, at the selected duration &amp; metric. Grey = no analysis for current filters.</p>
+          </section>
+
+          <section class="control-group stats">
+            <h3>Summary</h3>
+            <p><span id="stat-total">0</span> stations shown</p>
+            <p><span id="stat-analyzed">0</span> with severity data</p>
+          </section>
+        </aside>
+
+        <section class="map-area">
+          <div id="map" class="map-canvas"></div>
+        </section>
+      </div>
+    </template>
+
+    <template id="tpl-placeholder-tab">
+      <div class="placeholder-tab">
+        <h2 data-role="title"></h2>
+        <p data-role="body"></p>
+      </div>
+    </template>
+
+  </div>
+
+  <!-- Station detail slide-over -->
+  <div id="detail-overlay" class="detail-overlay" hidden></div>
+  <aside id="detail-panel" class="detail-panel" hidden>
+    <button id="detail-close" class="icon-btn" aria-label="Close">&times;</button>
+    <div id="detail-content"></div>
+  </aside>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+  <script src="js/config.js"></script>
+  <script src="js/colors.js"></script>
+  <script src="js/dataStore.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/panel.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
