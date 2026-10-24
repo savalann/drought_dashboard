@@ -36,11 +36,10 @@ const APP_CONFIG = {
       body: "This tab will extend the same station map, filters, and drought-detail panel to every state once national-scale data is available from the analysis pipeline.",
     },
     {
-      id: "online-analysis",
-      label: "Live Analysis (coming soon)",
-      type: "placeholder",
-      title: "Online / on-demand analysis",
-      body: "Reserved for a tab that triggers a fresh Python-side drought analysis (e.g. for a station or date range not yet pre-computed) and streams the result back here.",
+      id: "live-analysis",
+      label: "Live Status (Beta)",
+      type: "live-analysis",
+      state: "AL",
     },
   ],
 };

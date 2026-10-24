@@ -99,6 +99,21 @@ def build_severity_lookup() -> pd.DataFrame:
     return pd.concat([rp, max_ev, median_ev], ignore_index=True)
 
 
+def load_nwm_crosswalk() -> dict:
+    path = config.PROCESSED_DIR / "nwm_crosswalk.json"
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text())["stations"]
+
+
+def load_q90_stations() -> set[str]:
+    path = config.PROCESSED_DIR / "q90_thresholds.json"
+    if not path.exists():
+        return set()
+    manifest = json.loads(path.read_text())
+    return {s["station"] for s in manifest["stations"]}
+
+
 def build_stations_json(severity_long: pd.DataFrame, gpd_params: pd.DataFrame) -> list[dict]:
     meta = load_station_metadata()
     ref = load_reference_classification()
@@ -117,6 +132,9 @@ def build_stations_json(severity_long: pd.DataFrame, gpd_params: pd.DataFrame) -
         .pivot_table(index=["station", "duration"], columns="metric", values="severity_pct", aggfunc="first")
         .to_dict("index")
     )
+
+    nwm_crosswalk = load_nwm_crosswalk()
+    q90_stations = load_q90_stations()
 
     out = []
     for row in stations.itertuples():
@@ -157,6 +175,8 @@ def build_stations_json(severity_long: pd.DataFrame, gpd_params: pd.DataFrame) -
             "best_period": row.best_period,
             "has_analysis": has_analysis,
             "durations": durations_out,
+            "has_q90_analysis": station in q90_stations,
+            "nwm": nwm_crosswalk.get(station),
         })
     return out
 

@@ -177,3 +177,57 @@ html, body {
 .chart-wrap-tall { height: 320px; }
 .loading, .error { font-size: 13px; }
 .error { color: #cf222e; }
+
+/* Live Status tab --------------------------------------------------------- */
+.btn-run { width: 100%; padding: 8px 16px; margin-top: 4px; }
+#live-analysis-date { width: 100%; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
+#live-analysis-progress,
+#live-analysis-predict-progress { color: var(--accent); font-weight: 600; }
+.warning-banner {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #fff8e6;
+  border: 1px solid #f0c36d;
+  border-radius: 8px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #7a5300;
+}
+.warning-banner code { background: rgba(0,0,0,0.06); padding: 1px 4px; border-radius: 3px; }
+
+.predictions-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.prediction-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+}
+.prediction-row:hover { background: #f7f8fa; }
+.prediction-row.active { border-color: var(--accent); background: var(--accent-bg); }
+.prediction-date { font-weight: 600; flex-shrink: 0; }
+.prediction-tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: #f1f2f4;
+  padding: 1px 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.prediction-count { margin-left: auto; color: var(--text-muted); white-space: nowrap; }

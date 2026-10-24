@@ -1,0 +1,120 @@
+{
+  "candidate_vpus_searched": [
+    "VPU_03W",
+    "VPU_03N",
+    "VPU_03S",
+    "VPU_06",
+    "VPU_04"
+  ],
+  "stations": {
+    "02465000": {
+      "station": "02465000",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-485410",
+      "feature_id": 485410
+    },
+    "02374500": {
+      "station": "02374500",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-499906",
+      "feature_id": 499906
+    },
+    "02414500": {
+      "station": "02414500",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-492397",
+      "feature_id": 492397
+    },
+    "02422500": {
+      "station": "02422500",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-492000",
+      "feature_id": 492000
+    },
+    "02448500": {
+      "station": "02448500",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-487467",
+      "feature_id": 487467
+    },
+    "02450000": {
+      "station": "02450000",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-485219",
+      "feature_id": 485219
+    },
+    "02467000": {
+      "station": "02467000",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-484232",
+      "feature_id": 484232
+    },
+    "02467500": {
+      "station": "02467500",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-485006",
+      "feature_id": 485006
+    },
+    "02424000": {
+      "station": "02424000",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-491343",
+      "feature_id": 491343
+    },
+    "02446500": {
+      "station": "02446500",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-487981",
+      "feature_id": 487981
+    },
+    "02342500": {
+      "station": "02342500",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-483124",
+      "feature_id": 483124
+    },
+    "02456500": {
+      "station": "02456500",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-485745",
+      "feature_id": 485745
+    },
+    "02419000": {
+      "station": "02419000",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-493721",
+      "feature_id": 493721
+    },
+    "02455000": {
+      "station": "02455000",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-485818",
+      "feature_id": 485818
+    },
+    "02373000": {
+      "station": "02373000",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-499098",
+      "feature_id": 499098
+    },
+    "02361000": {
+      "station": "02361000",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-501811",
+      "feature_id": 501811
+    },
+    "02371500": {
+      "station": "02371500",
+      "vpu": "VPU_03W",
+      "flowpath_id": "wb-498891",
+      "feature_id": 498891
+    },
+    "03574500": {
+      "station": "03574500",
+      "vpu": "VPU_06",
+      "flowpath_id": "wb-1011967",
+      "feature_id": 1011967
+    }
+  },
+  "unmatched_stations": []
+}

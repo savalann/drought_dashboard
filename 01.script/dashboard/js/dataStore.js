@@ -29,5 +29,36 @@ const DataStore = (() => {
     return detail;
   }
 
-  return { getManifest, getStationDetail };
+  const q90Cache = new Map();
+  async function getQ90Thresholds(stationId) {
+    if (q90Cache.has(stationId)) {
+      return q90Cache.get(stationId);
+    }
+    const thresholds = await fetchJson(`${APP_CONFIG.DATA_BASE_URL}/q90_thresholds/${stationId}.json`);
+    q90Cache.set(stationId, thresholds);
+    return thresholds;
+  }
+
+  let droughtStatusManifestPromise = null;
+  function getDroughtStatusManifest() {
+    if (!droughtStatusManifestPromise) {
+      droughtStatusManifestPromise = fetchJson(`${APP_CONFIG.DATA_BASE_URL}/drought_status_history.json`);
+    }
+    return droughtStatusManifestPromise;
+  }
+
+  const droughtStatusYearCache = new Map();
+  async function getDroughtStatusYear(year) {
+    if (droughtStatusYearCache.has(year)) {
+      return droughtStatusYearCache.get(year);
+    }
+    const data = await fetchJson(`${APP_CONFIG.DATA_BASE_URL}/drought_status_history/${year}.json`);
+    droughtStatusYearCache.set(year, data);
+    return data;
+  }
+
+  return {
+    getManifest, getStationDetail, getQ90Thresholds,
+    getDroughtStatusManifest, getDroughtStatusYear,
+  };
 })();

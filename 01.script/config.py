@@ -24,16 +24,18 @@ STATIONS_DETAIL_DIR = PROCESSED_DIR / "stations"
 
 # Upstream analysis outputs (04.drought_analysis_visualization), already
 # copied into 02.input by hand for now. Re-copy here if that project's
-# pipeline is re-run with new data.
+# pipeline is re-run with new data. Kept in `pre-processed/` (gitignored,
+# not deployed) since the live site only ever needs `processed/`'s output.
 ALABAMA_RAW_DIR = INPUT_DIR / "alabama"
+PRE_PROCESSED_DIR = INPUT_DIR / "pre-processed"
 STATION_METADATA_CSV = ALABAMA_RAW_DIR / "00_station_metadata.csv"
-REFERENCE_CLASSIFICATION_CSV = INPUT_DIR / "01_alabama_reference_classification.csv"
-RECORD_COMPLETENESS_CSV = INPUT_DIR / "02_alabama_record_completeness.csv"
-DROUGHT_EVENTS_PARQUET = INPUT_DIR / "03_drought_events_1990.parquet"
-GPD_PARAMS_PARQUET = INPUT_DIR / "04_gpd_params_1990.parquet"
-RETURN_PERIOD_SEVERITY_PARQUET = INPUT_DIR / "05_return_period_severity_1990.parquet"
-MAX_DROUGHT_EVENT_CSV = INPUT_DIR / "08_max_drought_event_1990.csv"
-MEDIAN_DROUGHT_EVENT_CSV = INPUT_DIR / "09_median_drought_event_1990.csv"
+REFERENCE_CLASSIFICATION_CSV = PRE_PROCESSED_DIR / "01_alabama_reference_classification.csv"
+RECORD_COMPLETENESS_CSV = PRE_PROCESSED_DIR / "02_alabama_record_completeness.csv"
+DROUGHT_EVENTS_PARQUET = PRE_PROCESSED_DIR / "03_drought_events_1990.parquet"
+GPD_PARAMS_PARQUET = PRE_PROCESSED_DIR / "04_gpd_params_1990.parquet"
+RETURN_PERIOD_SEVERITY_PARQUET = PRE_PROCESSED_DIR / "05_return_period_severity_1990.parquet"
+MAX_DROUGHT_EVENT_CSV = PRE_PROCESSED_DIR / "08_max_drought_event_1990.csv"
+MEDIAN_DROUGHT_EVENT_CSV = PRE_PROCESSED_DIR / "09_median_drought_event_1990.csv"
 
 # One entry per state the dashboard can filter to. Adding a new state means
 # adding an entry here (plus its own set of the input files above) - the
@@ -71,3 +73,14 @@ SEVERITY_BINS = [
 ]
 
 MIN_EVENTS_FOR_GPD = 5  # mirrors drought_lib.MIN_EVENTS_FOR_GPD; stations below this have no GPD curve
+
+# Live Status tab -----------------------------------------------------------
+# Q90 thresholds themselves are climatology, so they use the longest
+# reference period available per station (1940 -> record end, see
+# compute_q90_thresholds.py). The "monitoring" history below is a separate,
+# shorter window: it's the pre-computed day-by-day drought status a user can
+# browse instantly without a live fetch. Live JS fetches (USGS observations,
+# NWM forecast) only ever cover the gap after this - see build_drought_status_history.py.
+MONITORING_PERIOD_START = "1980-01-01"
+DROUGHT_STATUS_HISTORY_DIR = PROCESSED_DIR / "drought_status_history"
+Q90_THRESHOLDS_DIR = PROCESSED_DIR / "q90_thresholds"

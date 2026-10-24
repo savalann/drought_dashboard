@@ -5,7 +5,7 @@
 (async function main() {
   const tabBar = document.getElementById("tab-bar");
   const tabPanels = document.getElementById("tab-panels");
-  const mapTabIds = new Set(); // tab ids that host a Leaflet map and need invalidateSize() on activation
+  const mapInvalidators = new Map(); // tab id -> fn to call on activation (Leaflet needs its container visible/sized first)
 
   let manifest;
   try {
@@ -35,6 +35,7 @@
 
     if (tab.type === "map") renderMapTab(tab, panel);
     else if (tab.type === "placeholder") renderPlaceholderTab(tab, panel);
+    else if (tab.type === "live-analysis") renderLiveAnalysisTab(tab, panel);
   });
 
   activateTab(APP_CONFIG.TABS[0].id);
@@ -42,7 +43,8 @@
   function activateTab(tabId) {
     document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b.dataset.tabId === tabId));
     document.querySelectorAll(".tab-panel").forEach((p) => { p.hidden = p.id !== `tab-panel-${tabId}`; });
-    if (mapTabIds.has(tabId)) requestAnimationFrame(() => DroughtMap.invalidateSize());
+    const invalidate = mapInvalidators.get(tabId);
+    if (invalidate) requestAnimationFrame(invalidate);
   }
 
   function renderPlaceholderTab(tab, panel) {
@@ -70,6 +72,14 @@
       panel.querySelector("#stat-analyzed").textContent = analyzed;
     });
 
-    mapTabIds.add(tab.id);
+    mapInvalidators.set(tab.id, () => DroughtMap.invalidateSize());
+  }
+
+  function renderLiveAnalysisTab(tab, panel) {
+    const tpl = document.getElementById("tpl-live-analysis-tab").content.cloneNode(true);
+    panel.appendChild(tpl);
+    const stateManifest = { ...manifest, stations: manifest.stations.filter((s) => !tab.state || s.state === tab.state) };
+    LiveAnalysis.setup(panel, stateManifest);
+    mapInvalidators.set(tab.id, () => LiveAnalysis.invalidateSize());
   }
 })();
