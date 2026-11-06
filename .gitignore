@@ -17,3 +17,7 @@ wheels/
 /02.input/pre-processed/
 /02.input/alabama/
 /01.script/temp_data/
+
+# Secrets (API keys)
+.env
+03.output

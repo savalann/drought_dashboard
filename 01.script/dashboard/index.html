@@ -141,9 +141,10 @@
             <p id="live-analysis-predict-error" class="error" hidden></p>
             <ul id="live-analysis-predictions-list" class="predictions-list" hidden></ul>
             <div class="warning-banner">
-              <strong>Model caveat:</strong> both options here are experimental community NextGen configurations - not
+              <strong>Model caveat:</strong> CFE-NOAH and LSTM are experimental community NextGen configurations (NRDS) - not
               the official operational National Water Model. Spot-checks found modeled flows on both runs orders of
-              magnitude high for at least one station, consistent with a model spin-up transient.
+              magnitude high for at least one station, consistent with a model spin-up transient. "NWM v3.0
+              operational" is NOAA's official model (00z run, member 1), pre-downloaded for September 2023 onward.
             </div>
           </section>
 
@@ -191,6 +192,7 @@
   <script src="js/dataStore.js"></script>
   <script src="js/nwmDataStore.js"></script>
   <script src="js/usgsDataStore.js"></script>
+  <script src="js/nwmDailyStore.js"></script>
   <script src="js/charts.js"></script>
   <script src="js/panel.js"></script>
   <script src="js/map.js"></script>

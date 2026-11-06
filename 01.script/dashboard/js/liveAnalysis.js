@@ -23,6 +23,9 @@ const LiveAnalysis = (() => {
   const TRAILING_WINDOW = 30;
   const MIN_WINDOW_FOR_COMPARISON = 20;
   const NORMAL_COLOR = "#3aa655";
+  // Pre-downloaded operational NWM v3.0 (NwmDailyStore); NRDS models go through NwmDataStore.
+  const NWM_V3_MODEL = "nwm_v3_daily";
+  const NWM_V3_LABEL = "NWM v3.0 operational (pre-downloaded, Sep 2023 - now)";
 
   let map = null;
   let markerLayer = null;
@@ -225,11 +228,20 @@ const LiveAnalysis = (() => {
       // and anchor the whole window to the OLDEST of those so every VPU's
       // data is genuinely available.
       progressEl.textContent = "Finding the latest available forecast run…";
+      const isNwmV3 = model === NWM_V3_MODEL;
       let centerDate = null;
-      for (const vpu of byVpu.keys()) {
-        const found = await NwmDataStore.findLatestAvailableRunDate(vpu, model, requestedDate);
-        if (!found) throw new Error(`No medium-range run found for ${vpu} on or before ${requestedDateStr}.`);
-        if (centerDate === null || found < centerDate) centerDate = found;
+      if (isNwmV3) {
+        centerDate = await NwmDailyStore.findLatestRunDate(requestedDate);
+        if (!centerDate) {
+          throw new Error(`No pre-downloaded NWM v3.0 forecast on or within 5 days before ${requestedDateStr} `
+            + `(available from ${NwmDailyStore.FIRST_DAY}).`);
+        }
+      } else {
+        for (const vpu of byVpu.keys()) {
+          const found = await NwmDataStore.findLatestAvailableRunDate(vpu, model, requestedDate);
+          if (!found) throw new Error(`No medium-range run found for ${vpu} on or before ${requestedDateStr}.`);
+          if (centerDate === null || found < centerDate) centerDate = found;
+        }
       }
       if (NwmDataStore.toDateKey(centerDate) !== requestedDateStr) {
         progressEl.textContent = `${requestedDateStr} has no published run yet - using the latest available, ${NwmDataStore.toDateKey(centerDate)}. Fetching observed run-up from USGS…`;
@@ -242,23 +254,28 @@ const LiveAnalysis = (() => {
         stations.map((s) => s.station), usgsStart, centerDate,
       );
 
-      const nwmMeansByFeature = new Map();
+      const nwmMeansByStation = new Map();
+      if (isNwmV3) {
+        progressEl.textContent = "Loading pre-downloaded NWM v3.0 forecast…";
+        const means = await NwmDailyStore.getMediumRangeDailyMeans(stations.map((s) => s.station), centerDate);
+        means.forEach((v, station) => nwmMeansByStation.set(station, v));
+      }
       let vpusDone = 0;
-      for (const [vpu, vpuStations] of byVpu) {
+      for (const [vpu, vpuStations] of isNwmV3 ? [] : byVpu) {
         progressEl.textContent = `Fetching medium-range forecast for ${vpu} (${vpusDone + 1}/${byVpu.size} regions)…`;
         const featureIds = vpuStations.map((s) => s.nwm.feature_id);
         const means = await NwmDataStore.getMediumRangeDailyMeansForFeatures(
           vpu, featureIds, centerDate, model,
           (done, total) => { progressEl.textContent = `Fetching medium-range forecast for ${vpu}: ${done}/${total} files…`; },
         );
-        means.forEach((v, fid) => nwmMeansByFeature.set(fid, v));
+        vpuStations.forEach((s) => nwmMeansByStation.set(s.station, means.get(s.nwm.feature_id) || new Map()));
         vpusDone += 1;
       }
 
       const seriesByStation = new Map();
       stations.forEach((s) => {
         const usgsMeans = usgsMeansByStation.get(s.station) || new Map();
-        const nwmMeans = nwmMeansByFeature.get(s.nwm.feature_id) || new Map();
+        const nwmMeans = nwmMeansByStation.get(s.station) || new Map();
         let days = buildDailySeries(usgsMeans, nwmMeans, centerDate);
         days = withTrailingMeans(days);
         seriesByStation.set(s.station, days);
@@ -294,7 +311,7 @@ const LiveAnalysis = (() => {
           listEl.querySelectorAll(".prediction-row").forEach((b) => b.classList.remove("active"));
           btnEl.classList.add("active");
           const pd = predictionDays.find((p) => p.date === btnEl.dataset.date);
-          const modelLabel = NwmDataStore.MODELS[model]?.label || model;
+          const modelLabel = model === NWM_V3_MODEL ? "NWM v3.0 operational" : (NwmDataStore.MODELS[model]?.label || model);
           currentView = {
             resultsByStation: pd.resultsByStation,
             label: `${pd.date} - ${pd.dayOffset === 0 ? day0Word : `+${pd.dayOffset}-day`} forecast (NWM medium-range, ${modelLabel}).`,
@@ -334,7 +351,8 @@ const LiveAnalysis = (() => {
 
     const modelSelect = root.querySelector("#live-analysis-model-select");
     modelSelect.innerHTML = Object.entries(NwmDataStore.MODELS)
-      .map(([key, m]) => `<option value="${key}">${m.label}</option>`).join("");
+      .map(([key, m]) => `<option value="${key}">${m.label}</option>`).join("")
+      + `<option value="${NWM_V3_MODEL}">${NWM_V3_LABEL}</option>`;
     modelSelect.value = NwmDataStore.DEFAULT_MODEL;
 
     const predictRunDateInput = root.querySelector("#live-analysis-predict-rundate");

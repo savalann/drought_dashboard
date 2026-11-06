@@ -1,0 +1,60 @@
+{
+ "description": "Alabama stations with a screened 1940-2026 record (pass_1940) -> NHDPlus v2 COMID used by the operational National Water Model. COMIDs resolved via USGS NLDI (api.water.usgs.gov/nldi/linked-data/nwissite/USGS-<id>).",
+ "region": "alabama",
+ "stations": {
+  "02342500": {
+   "comid": 3435970
+  },
+  "02361000": {
+   "comid": 2188031
+  },
+  "02371500": {
+   "comid": 2377281
+  },
+  "02373000": {
+   "comid": 2402121
+  },
+  "02374500": {
+   "comid": 933140017
+  },
+  "02414500": {
+   "comid": 22042575
+  },
+  "02419000": {
+   "comid": 21717690
+  },
+  "02422500": {
+   "comid": 21676818
+  },
+  "02424000": {
+   "comid": 21661814
+  },
+  "02446500": {
+   "comid": 166759201
+  },
+  "02448500": {
+   "comid": 18604126
+  },
+  "02450000": {
+   "comid": 18589030
+  },
+  "02455000": {
+   "comid": 18563487
+  },
+  "02456500": {
+   "comid": 18566317
+  },
+  "02465000": {
+   "comid": 18229923
+  },
+  "02467000": {
+   "comid": 18540822
+  },
+  "02467500": {
+   "comid": 18531726
+  },
+  "03574500": {
+   "comid": 19621426
+  }
+ }
+}

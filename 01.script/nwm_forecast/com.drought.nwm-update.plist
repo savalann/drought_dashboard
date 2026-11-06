@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- macOS scheduler for update_forecasts.py: runs every 6 hours (local time 01:15, 07:15, 13:15,
+     19:15); if the Mac was asleep, launchd runs the missed pass on wake. The script itself fills
+     any gap from the last 3 days, so a missed pass loses nothing.
+     Install:   cp this file ~/Library/LaunchAgents/ && launchctl load ~/Library/LaunchAgents/com.drought.nwm-update.plist
+     Remove:    launchctl unload ~/Library/LaunchAgents/com.drought.nwm-update.plist && rm ~/Library/LaunchAgents/com.drought.nwm-update.plist
+     Run now:   launchctl start com.drought.nwm-update
+     Log:       01.script/temp_data/nwm_update.log -->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.drought.nwm-update</string>
+  <key>WorkingDirectory</key>
+  <string>/Users/savalan/Documents/01.projects/05.drought_visualization/01.script</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/savalan/.local/bin/uv</string>
+    <string>run</string>
+    <string>python</string>
+    <string>nwm_forecast/update_forecasts.py</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict><key>Hour</key><integer>1</integer><key>Minute</key><integer>15</integer></dict>
+    <dict><key>Hour</key><integer>7</integer><key>Minute</key><integer>15</integer></dict>
+    <dict><key>Hour</key><integer>13</integer><key>Minute</key><integer>15</integer></dict>
+    <dict><key>Hour</key><integer>19</integer><key>Minute</key><integer>15</integer></dict>
+  </array>
+  <key>StandardOutPath</key>
+  <string>/Users/savalan/Documents/01.projects/05.drought_visualization/01.script/temp_data/nwm_update.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/savalan/Documents/01.projects/05.drought_visualization/01.script/temp_data/nwm_update.log</string>
+</dict>
+</plist>

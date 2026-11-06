@@ -10,6 +10,10 @@
 const APP_CONFIG = {
   DATA_BASE_URL: "../../02.input/processed",
 
+  // Pre-downloaded operational NWM forecasts (01.script/nwm_forecast/download_medium_range.py).
+  // Same layout locally and on GitHub Pages; point at a bucket URL later without other changes.
+  NWM_FORECAST_BASE_URL: "../../03.output/nwm_forecasts",
+
   // Human-readable names for the state codes in stations.json's `states`
   // list. Add an entry here whenever build_dataset.py's STATE_REGISTRY
   // (01.script/config.py) gains a new state.

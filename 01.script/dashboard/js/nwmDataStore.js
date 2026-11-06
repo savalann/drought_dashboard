@@ -136,6 +136,7 @@ const NwmDataStore = (() => {
     CMS_TO_CFS,
     MODELS,
     DEFAULT_MODEL,
+    loadHyparquet,
     toDateKey,
     addDays,
     findLatestAvailableRunDate,
