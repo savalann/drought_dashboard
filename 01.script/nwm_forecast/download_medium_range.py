@@ -142,13 +142,19 @@ def to_tables(raw: pd.DataFrame, stations: dict[int, str]) -> tuple[pd.DataFrame
     return hourly, daily.reset_index(drop=True)
 
 
-def write_parquet(df: pd.DataFrame, path: Path, meta: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
+def parquet_bytes(df: pd.DataFrame, meta: dict) -> bytes:
     table = pa.Table.from_pandas(df, preserve_index=False)
     table = table.replace_schema_metadata({**(table.schema.metadata or {}),
                                            b"nwm_forecast": json.dumps(meta).encode()})
+    buf = io.BytesIO()
+    pq.write_table(table, buf, **PARQUET_OPTIONS)
+    return buf.getvalue()
+
+
+def write_parquet(df: pd.DataFrame, path: Path, meta: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".parquet.tmp")
-    pq.write_table(table, tmp, **PARQUET_OPTIONS)
+    tmp.write_bytes(parquet_bytes(df, meta))
     tmp.replace(path)  # never leave a half-written file that the skip-check would trust
 
 

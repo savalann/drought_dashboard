@@ -13,6 +13,7 @@ Velocity is not read (it would double the download), so it is left empty.
 from __future__ import annotations
 
 import io
+import multiprocessing as mp
 import os
 import threading
 from concurrent.futures import ProcessPoolExecutor
@@ -33,8 +34,10 @@ _executor: ProcessPoolExecutor | None = None
 
 
 def _session() -> requests.Session:
-    if not hasattr(_local, "s"):
-        _local.s = requests.Session()
+    # One per process: on Linux (Lambda) child processes are forked copies, and sharing the
+    # parent's open HTTPS connection corrupts it ("Broken pipe" / SSL record errors).
+    if getattr(_local, "pid", None) != os.getpid():
+        _local.s, _local.pid = requests.Session(), os.getpid()
     return _local.s
 
 
@@ -116,14 +119,42 @@ def _read_hour(args) -> tuple[int, np.ndarray]:
     return valid, out
 
 
+def _pipe_worker(conn, jobs) -> None:
+    conn.send([_read_hour(j) for j in jobs])
+    conn.close()
+
+
+def _map_with_pipes(jobs: list, n: int) -> list:
+    """AWS Lambda has no /dev/shm, so ProcessPoolExecutor (and multiprocessing.Pool/Queue) fail
+    there; plain Processes talking over Pipes work."""
+    workers = []
+    for i in range(n):
+        recv, send = mp.Pipe(duplex=False)
+        p = mp.Process(target=_pipe_worker, args=(send, jobs[i::n]))
+        p.start()
+        workers.append((p, recv))
+    results = []
+    for p, recv in workers:
+        results += recv.recv()  # read before join, or a large result blocks the child forever
+        p.join()
+        if p.exitcode:
+            raise RuntimeError(f"Google reader process failed (exit code {p.exitcode})")
+    return results
+
+
 def fetch_run_google(comids: list[int], run: datetime, member: str) -> pd.DataFrame:
     """Same columns as the CIROH API CSV: feature_id, reference_time, time, ensemble, streamflow, velocity."""
     global _executor
-    if _executor is None:
-        _executor = ProcessPoolExecutor(min(PROCESSES, os.cpu_count() * 4))
     m = int(member)
     positions = _positions(run, m, comids)
-    results = list(_executor.map(_read_hour, [(_url(run, m, h), positions) for h in HOURS]))
+    jobs = [(_url(run, m, h), positions) for h in HOURS]
+    n = min(PROCESSES, os.cpu_count() * 4)
+    if os.environ.get("AWS_LAMBDA_FUNCTION_NAME") or os.environ.get("NWM_GOOGLE_POOL") == "pipes":
+        results = _map_with_pipes(jobs, n)
+    else:
+        if _executor is None:
+            _executor = ProcessPoolExecutor(n)
+        results = list(_executor.map(_read_hour, jobs))
     rows = []
     ref = run.strftime("%Y-%m-%dT%H:%M:%S")
     for valid, values in results:

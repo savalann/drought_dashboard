@@ -28,7 +28,8 @@ const NwmDailyStore = (() => {
     if (!fileCache.has(url)) {
       fileCache.set(url, (async () => {
         const res = await fetch(url);
-        if (res.status === 404) return null;
+        // A public S3 bucket answers 403 (not 404) for a missing file unless listing is public too.
+        if (res.status === 404 || res.status === 403) return null;
         if (!res.ok) throw new Error(`Could not load ${url}: ${res.status}`);
         const { parquetReadObjects, compressors } = await NwmDataStore.loadHyparquet();
         return parquetReadObjects({ file: await res.arrayBuffer(), compressors });

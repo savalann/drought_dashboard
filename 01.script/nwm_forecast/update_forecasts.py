@@ -34,6 +34,22 @@ PUBLISH_DELAY_HOURS = 7   # measured ~6.5 h from cycle time to the last file bei
 EXPECTED_HOURS = 240      # member 0 / medium_range_mem1 runs 240 hours; fewer means not fully published
 
 
+def plan(now: datetime, lookback_days: int, cycles: list[str], have) -> tuple[list, list]:
+    """Runs from the last `lookback_days` days that are missing, split into (ready, not published yet).
+    `have(day, cycle)` says whether a run is already saved - on disk here, in S3 for the Lambda."""
+    ready_before = now - timedelta(hours=PUBLISH_DELAY_HOURS)
+    todo, waiting = [], []
+    for back in range(lookback_days, -1, -1):
+        day = (now - timedelta(days=back)).date()
+        if day < NWM_V3_FIRST_FULL_DAY:
+            continue
+        for cycle in cycles:
+            ref = datetime(day.year, day.month, day.day, int(cycle), tzinfo=timezone.utc)
+            if not have(day, cycle):
+                (todo if ref <= ready_before else waiting).append((day, cycle, ref))
+    return todo, waiting
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--lookback-days", type=int, default=3)
@@ -53,18 +69,8 @@ def main() -> int:
         return 0
 
     now = datetime.now(timezone.utc)
-    ready_before = now - timedelta(hours=PUBLISH_DELAY_HOURS)
-    todo, waiting = [], []
-    for back in range(args.lookback_days, -1, -1):
-        day = (now - timedelta(days=back)).date()
-        if day < NWM_V3_FIRST_FULL_DAY:
-            continue
-        for cycle in args.cycles:
-            ref = datetime(day.year, day.month, day.day, int(cycle), tzinfo=timezone.utc)
-            have = all(output_path(k, cycle, args.member, args.region, day).exists() for k in ("hourly", "daily"))
-            if have:
-                continue
-            (todo if ref <= ready_before else waiting).append((day, cycle, ref))
+    todo, waiting = plan(now, args.lookback_days, args.cycles, lambda day, cycle: all(
+        output_path(k, cycle, args.member, args.region, day).exists() for k in ("hourly", "daily")))
 
     print(f"{now:%Y-%m-%d %H:%M}Z  missing and ready: {len(todo)}   not published yet: {len(waiting)}")
     for day, cycle, _ in waiting:

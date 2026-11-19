@@ -11,8 +11,9 @@ const APP_CONFIG = {
   DATA_BASE_URL: "../../02.input/processed",
 
   // Pre-downloaded operational NWM forecasts (01.script/nwm_forecast/download_medium_range.py).
-  // Same layout locally and on GitHub Pages; point at a bucket URL later without other changes.
-  NWM_FORECAST_BASE_URL: "../../03.output/nwm_forecasts",
+  // Kept up to date in S3 by the Lambda (01.script/nwm_forecast/aws/README.md). For the local
+  // copy instead, use "../../03.output/nwm_forecasts" (same file layout).
+  NWM_FORECAST_BASE_URL: "https://ciroh-drought-dashboard.s3.us-east-1.amazonaws.com/nwm_forecasts",
 
   // Human-readable names for the state codes in stations.json's `states`
   // list. Add an entry here whenever build_dataset.py's STATE_REGISTRY
